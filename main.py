@@ -12,7 +12,11 @@ load_dotenv()
 class Settings(BaseSettings):
     facebook_api_token: str = os.getenv("FACEBOOK_API_TOKEN")
     facebook_phone_number_id: str = os.getenv("FACEBOOK_PHONE_NUMBER_ID")
+    facebook_app_id: str = os.getenv("FACEBOOK_APP_ID")
+    facebook_app_secret: str = os.getenv("FACEBOOK_APP_SECRET")
+    webhook_verify_token: str = os.getenv("WEBHOOK_VERIFY_TOKEN", "your_verification_token")
     facebook_api_version: str = "v22.0"
+
 
     class Config:
         env_file = '.env'
@@ -22,6 +26,16 @@ class WhatsAppTemplateRequest(BaseModel):
     template_name: str = "hello_world"
     language_code: str = "en_US"
     
+class MessageStore:
+    def __init__(self):
+        self.messages = []
+    
+    def add_message(self, message_data):
+        self.messages.append(message_data)
+    
+    def get_all_messages(self):
+        return self.messages
+
 app = FastAPI(
     title="WhatsApp Sender API",
     description="An API to send WhatsApp messages via Facebook Graph API",
@@ -34,6 +48,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+message_store = MessageStore()
 
 def get_settings() -> Settings:
     return Settings()
