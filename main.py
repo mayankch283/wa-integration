@@ -1,6 +1,6 @@
 import os
 import httpx
-from fastapi import FastAPI, HTTPException, Depends, Body
+from fastapi import FastAPI, HTTPException, Depends, Body, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
@@ -57,6 +57,22 @@ def get_settings() -> Settings:
 @app.get("/")
 async def root():
     return {"message": "WhatsApp Sender API is running"}
+
+@app.get("/webhook")
+async def verify_webhook(request: Request, settings: Settings = Depends(get_settings)):
+    params = dict(request.query_params)
+    mode = params.get("hub.mode")
+    token = params.get("hub.verify_token")
+    challenge = params.get("hub.challenge")
+    
+    if mode and token:
+        if mode == "subscribe" and token == settings.webhook_verify_token:
+            print("WEBHOOK_VERIFIED")
+            return int(challenge) if challenge else "OK"
+        else:
+            raise HTTPException(status_code=403, detail="Verification failed")
+    
+    return {"message": "No verification parameters found"}
 
 
 @app.post("/send-whatsapp-template")
