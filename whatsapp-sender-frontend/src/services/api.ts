@@ -5,7 +5,7 @@ interface WhatsAppTemplateRequest {
 }
 
 export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
-  const response = await fetch('http://127.0.0.1:8000/send-whatsapp-template', {
+  const response = await fetch('https://wa-soee.onrender.com/send-whatsapp-template', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
