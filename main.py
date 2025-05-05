@@ -43,46 +43,6 @@ async def root():
     return {"message": "WhatsApp Sender API is running"}
 
 
-@app.post("/send-hello-world-hardcoded", status_code=202)
-async def send_hardcoded_message(settings: Settings = Depends(get_settings)):
-    api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_phone_number_id}/messages"
-    recipient_number = "" 
-    template_name = "hello_world"    
-    language_code = "en_US"          
-
-    headers = {
-        "Authorization": f"Bearer {settings.facebook_api_token}",
-        "Content-Type": "application/json",
-    }
-
-    facebook_payload = {
-        "messaging_product": "whatsapp",
-        "to": recipient_number,
-        "type": "template",
-        "template": {
-            "name": template_name,
-            "language": {"code": language_code},
-        },
-    }
-
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(
-                api_url, headers=headers, json=facebook_payload, timeout=10.0
-            )
-            response.raise_for_status()
-            return response.json()
-        except httpx.TimeoutException:
-             raise HTTPException(status_code=504, detail="Request to Facebook API timed out")
-        except httpx.RequestError as exc:
-            raise HTTPException(status_code=503, detail=f"Error contacting Facebook API: {exc}")
-        except httpx.HTTPStatusError as exc:
-            print(f"Facebook API Error Response: {exc.response.text}")
-            raise HTTPException(status_code=exc.response.status_code, detail=f"Facebook API Error: {exc.response.json()}")
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-            raise HTTPException(status_code=500, detail="An internal server error occurred.")
-
 @app.post("/send-whatsapp-template")
 async def send_whatsapp_message(
     payload: WhatsAppTemplateRequest,
