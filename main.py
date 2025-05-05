@@ -1,3 +1,4 @@
+import json
 import os
 import httpx
 from fastapi import FastAPI, HTTPException, Depends, Body, Request
@@ -74,6 +75,29 @@ async def verify_webhook(request: Request, settings: Settings = Depends(get_sett
     
     return {"message": "No verification parameters found"}
 
+@app.post("/webhook")
+async def receive_webhook(request: Request):
+    body = await request.json()
+    print(f"Received webhook: {json.dumps(body, indent=2)}")
+    
+    # process incoming messages
+    if body.get("object") == "whatsapp_business_account":
+        for entry in body.get("entry", []):
+            for change in entry.get("changes", []):
+                if change.get("field") == "messages":
+                    value = change.get("value", {})
+                    
+                    if "messages" in value:
+                        for message in value["messages"]:
+                            if "contacts" in value:
+                                for contact in value["contacts"]:
+                                    message["contact_info"] = contact
+                            
+                            # store the message
+                            message_store.add_message(message)
+                            print(f"Stored message: {message}")
+    
+    return {"status": "success"}
 
 @app.post("/send-whatsapp-template")
 async def send_whatsapp_message(
