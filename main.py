@@ -13,9 +13,7 @@ load_dotenv()
 class Settings(BaseSettings):
     facebook_api_token: str = os.getenv("FACEBOOK_API_TOKEN")
     facebook_phone_number_id: str = os.getenv("FACEBOOK_PHONE_NUMBER_ID")
-    facebook_app_id: str = os.getenv("FACEBOOK_APP_ID")
-    facebook_app_secret: str = os.getenv("FACEBOOK_APP_SECRET")
-    webhook_verify_token: str = os.getenv("WEBHOOK_VERIFY_TOKEN", "your_verification_token")
+    webhook_verify_token: str = os.getenv("WEBHOOK_VERIFY_TOKEN")
     facebook_api_version: str = "v22.0"
 
 
@@ -98,6 +96,10 @@ async def receive_webhook(request: Request):
                             print(f"Stored message: {message}")
     
     return {"status": "success"}
+
+@app.get("/messages")
+async def get_messages():
+    return {"messages": message_store.get_all_messages()}
 
 @app.post("/send-whatsapp-template")
 async def send_whatsapp_message(
