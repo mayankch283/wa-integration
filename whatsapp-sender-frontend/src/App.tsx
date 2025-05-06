@@ -1,4 +1,5 @@
 import WhatsAppTemplateForm from './components/WhatsappTemplateForm';
+import MessagesList from './components/MessagesList';
 
 const App: React.FC = () => {
   return (
@@ -9,8 +10,11 @@ const App: React.FC = () => {
           <p className="text-gray-600">Send WhatsApp template messages via the Facebook Graph API</p>
         </header>
         
-        <main>
-          <WhatsAppTemplateForm />
+        <main className="max-w-4xl mx-auto">
+          <div className="grid gap-8 md:grid-cols-2">
+            <WhatsAppTemplateForm />
+            <MessagesList />
+          </div>
         </main>
         
         <footer className="mt-12 text-center text-gray-500 text-sm">
