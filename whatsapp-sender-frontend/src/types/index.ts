@@ -13,3 +13,19 @@ export interface ApiResponse {
   message: string;
   data?: any;
 }
+
+export interface WhatsAppMessage {
+  from: string;
+  id: string;
+  timestamp: string;
+  text: {
+    body: string;
+  };
+  type: string;
+  contact_info: {
+    profile: {
+      name: string;
+    };
+    wa_id: string;
+  };
+}
