@@ -17,7 +17,7 @@ const MessagesList: React.FC = () => {
     };
 
     loadMessages();
-    //polling every 30 seconds
+//polling every 30 seconds
     const interval = setInterval(loadMessages, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -31,13 +31,13 @@ const MessagesList: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold mb-4">Recent Messages</h2>
-      {messages.length === 0 ? (
-        <p className="text-gray-500">No messages yet</p>
-      ) : (
-        <div className="space-y-4">
-          {messages.map((message) => (
+    <div className="flex flex-col h-[600px] border rounded-lg bg-gray-50">
+      <h2 className="text-xl font-bold p-4 border-b bg-white sticky top-0">Recent Messages</h2>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.length === 0 ? (
+          <p className="text-gray-500">No messages yet</p>
+        ) : (
+          messages.map((message) => (
             <div
               key={message.id}
               className="bg-white p-4 rounded-lg shadow border border-gray-200"
@@ -55,9 +55,9 @@ const MessagesList: React.FC = () => {
               <p className="text-gray-700">{message.text.body}</p>
               <p className="text-sm text-gray-500 mt-2">From: {message.from}</p>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 };
