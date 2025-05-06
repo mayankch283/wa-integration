@@ -19,3 +19,11 @@ export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
 
   return response.json();
 };
+
+export const fetchMessages = async () => {
+  const response = await fetch('https://wa-soee.onrender.com/messages');
+  if (!response.ok) {
+    throw new Error('Failed to fetch messages');
+  }
+  return response.json();
+};
