@@ -18,10 +18,22 @@ export interface WhatsAppMessage {
   from: string;
   id: string;
   timestamp: string;
-  text: {
+  type: 'text' | 'sticker' | 'image';
+  text?: {
     body: string;
   };
-  type: string;
+  sticker?: {
+    mime_type: string;
+    sha256: string;
+    id: string;
+    animated: boolean;
+  };
+  image?: {
+    mime_type: string;
+    sha256: string;
+    id: string;
+    caption?: string;
+  };
   contact_info: {
     profile: {
       name: string;

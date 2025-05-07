@@ -17,10 +17,43 @@ const MessagesList: React.FC = () => {
     };
 
     loadMessages();
-//polling every 30 seconds
+    //polling every 30 seconds
     const interval = setInterval(loadMessages, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const renderMessageContent = (message: WhatsAppMessage) => {
+    switch (message.type) {
+      case 'text':
+        return <p className="text-gray-700">{message.text?.body}</p>;
+      case 'sticker':
+        return (
+          <div className="bg-gray-100 p-2 rounded">
+            <p className="text-sm text-gray-600">
+              Sticker sent (ID: {message.sticker?.id})
+            </p>
+          </div>
+        );
+      case 'image':
+        return (
+          <div className="space-y-2">
+            <div className="bg-gray-100 p-2 rounded">
+              <p className="text-sm text-gray-600">
+                Image received (ID: {message.image?.id})
+              </p>
+              {message.image?.caption && (
+                <p className="text-gray-700 mt-1">
+                  Caption: {message.image.caption}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+        
+      default:
+        return <p className="text-gray-500">Unsupported message type: {message.type}</p>;
+    }
+  };
 
   if (error) {
     return (
@@ -52,7 +85,7 @@ const MessagesList: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <p className="text-gray-700">{message.text.body}</p>
+              {renderMessageContent(message)}
               <p className="text-sm text-gray-500 mt-2">From: {message.from}</p>
             </div>
           ))
