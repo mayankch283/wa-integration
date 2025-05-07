@@ -3,9 +3,9 @@ import os
 import httpx
 from fastapi import FastAPI, HTTPException, Depends, Body, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from pydantic_settings import BaseSettings
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,11 +21,39 @@ class Settings(BaseSettings):
     class Config:
         env_file = '.env'
 
+class WhatsAppTemplateParameter(BaseModel):
+    type: str = "text"
+    text: str
+
+    class Config:
+        json_encoders = {
+            Any: lambda v: v.__dict__ if hasattr(v, '__dict__') else str(v)
+        }
+
+class WhatsAppTemplateComponent(BaseModel):
+    type: str  
+    parameters: List[WhatsAppTemplateParameter]
+
+    class Config:
+        json_encoders = {
+            Any: lambda v: v.__dict__ if hasattr(v, '__dict__') else str(v)
+        }
+
 class WhatsAppTemplateRequest(BaseModel):
     to: str = Field(..., pattern=r"^\d+$", description="Recipient phone number (digits only)")
-    template_name: str = "hello_world"
-    language_code: str = "en_US"
-    
+    template_name: str
+    language_code: str
+    components: List[WhatsAppTemplateComponent]
+
+    class Config:
+        json_encoders = {
+            Any: lambda v: v.__dict__ if hasattr(v, '__dict__') else str(v)
+        }
+        
+    @validator('components')
+    def validate_components(cls, v):
+        return [comp.dict() for comp in v]
+
 class MessageStore:
     def __init__(self):
         self.messages = []
@@ -107,7 +135,6 @@ async def send_whatsapp_message(
     payload: WhatsAppTemplateRequest,
     settings: Settings = Depends(get_settings)
 ):
-
     api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_phone_number_id}/messages"
 
     headers = {
@@ -122,7 +149,8 @@ async def send_whatsapp_message(
         "template": {
             "name": payload.template_name,
             "language": {"code": payload.language_code},
-        },
+            "components": payload.components
+        }
     }
 
     async with httpx.AsyncClient() as client:
@@ -133,11 +161,10 @@ async def send_whatsapp_message(
                 json=facebook_payload,
                 timeout=10.0 
             )
-
+            
             response.raise_for_status()
-
             return response.json()
-
+            
         except httpx.TimeoutException:
             raise HTTPException(
                 status_code=504, detail="Request to Facebook API timed out"
@@ -158,6 +185,7 @@ async def send_whatsapp_message(
                 status_code=500, detail="An internal server error occurred."
                 
             )
+
 @app.get("/templates")
 async def get_templates(settings: Settings = Depends(get_settings)):
     api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_app_id}/message_templates"
