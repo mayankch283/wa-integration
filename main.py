@@ -155,4 +155,56 @@ async def send_whatsapp_message(
             print(f"An unexpected error occurred: {e}")
             raise HTTPException(
                 status_code=500, detail="An internal server error occurred."
+                
+            )
+@app.get("/templates")
+async def get_templates(settings: Settings = Depends(get_settings)):
+    api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_phone_number_id}/message_templates"
+    
+    headers = {
+        "Authorization": f"Bearer {settings.facebook_api_token}",
+    }
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(
+                api_url,
+                headers=headers,
+                timeout=10.0
+            )
+            
+            response.raise_for_status()
+            templates_data = response.json()
+            
+            templates = []
+            for template in templates_data.get('data', []):
+                templates.append({
+                    'id': template.get('id'),
+                    'name': template.get('name'),
+                    'language': template.get('language'),
+                    'components': template.get('components', []),
+                    'status': template.get('status'),
+                    'category': template.get('category')
+                })
+            
+            return {"templates": templates}
+            
+        except httpx.TimeoutException:
+            raise HTTPException(
+                status_code=504, detail="Request to Facebook API timed out"
+            )
+        except httpx.RequestError as exc:
+            raise HTTPException(
+                status_code=503, detail=f"Error contacting Facebook API: {exc}"
+            )
+        except httpx.HTTPStatusError as exc:
+            print(f"Facebook API Error Response: {exc.response.text}")
+            raise HTTPException(
+                status_code=exc.response.status_code, 
+                detail=f"Facebook API Error: {exc.response.json()}"
+            )
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            raise HTTPException(
+                status_code=500, detail="An internal server error occurred."
             )
