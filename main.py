@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     facebook_api_token: str = os.getenv("FACEBOOK_API_TOKEN")
     facebook_phone_number_id: str = os.getenv("FACEBOOK_PHONE_NUMBER_ID")
     webhook_verify_token: str = os.getenv("WEBHOOK_VERIFY_TOKEN")
+    facebook_app_id: str = os.getenv("FACEBOOK_APP_ID")
     facebook_api_version: str = "v22.0"
 
 
@@ -159,7 +160,7 @@ async def send_whatsapp_message(
             )
 @app.get("/templates")
 async def get_templates(settings: Settings = Depends(get_settings)):
-    api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_phone_number_id}/message_templates"
+    api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_app_id}/message_templates"
     
     headers = {
         "Authorization": f"Bearer {settings.facebook_api_token}",
