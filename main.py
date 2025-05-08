@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, validator
 from pydantic_settings import BaseSettings
 from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
+from supabase import create_client, Client
 
 load_dotenv()
 
@@ -16,6 +17,8 @@ class Settings(BaseSettings):
     webhook_verify_token: str = os.getenv("WEBHOOK_VERIFY_TOKEN")
     facebook_app_id: str = os.getenv("FACEBOOK_APP_ID")
     facebook_api_version: str = "v22.0"
+    supabase_url: str = os.getenv("SUPABASE_URL")
+    supabase_key: str = os.getenv("SUPABASE_KEY")
 
 
     class Config:
@@ -55,14 +58,23 @@ class WhatsAppTemplateRequest(BaseModel):
         return [comp.dict() for comp in v]
 
 class MessageStore:
-    def __init__(self):
-        self.messages = []
+    def __init__(self, settings: Settings):
+        self.supabase: Client = create_client(settings.supabase_url, settings.supabase_key)
     
     def add_message(self, message_data):
-        self.messages.append(message_data)
-    
+        structured_data = {
+            "message_id": message_data.get("id"),
+            "from_number": message_data.get("from"),
+            "timestamp": message_data.get("timestamp"),
+            "message_type": message_data.get("type"),
+            "message_content": json.dumps(message_data),
+            "contact_info": json.dumps(message_data.get("contact_info", {}))
+        }
+        
+        return self.supabase.table("messages").insert(structured_data).execute()
+        
     def get_all_messages(self):
-        return self.messages
+        return self.supabase.table("messages").select("*").execute().data
 
 app = FastAPI(
     title="WhatsApp Sender API",
@@ -77,10 +89,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-message_store = MessageStore()
-
 def get_settings() -> Settings:
     return Settings()
+
+message_store = MessageStore(get_settings())
 
 @app.get("/")
 async def root():
