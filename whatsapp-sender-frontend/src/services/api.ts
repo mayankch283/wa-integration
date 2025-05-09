@@ -1,7 +1,39 @@
-interface WhatsAppTemplateRequest {
+// api.ts
+export interface WhatsAppTemplateParameter {
+  type: string;
+  text: string;
+}
+
+export interface WhatsAppTemplateComponent {
+  type: string;
+  parameters: WhatsAppTemplateParameter[];
+}
+
+export interface WhatsAppTemplateRequest {
   to: string;
   template_name: string;
   language_code: string;
+  components: WhatsAppTemplateComponent[];
+}
+
+export interface TemplateComponent {
+  type: string;
+  text?: string;
+  format?: string;
+  example?: {
+    body_text?: string[][];
+    header_text?: string[][];
+  };
+}
+
+export interface Template {
+  id: string;
+  name: string;
+  language: string;
+  components: TemplateComponent[];
+  status: string;
+  category: string;
+  parameter_format?: string;
 }
 
 export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
@@ -24,6 +56,14 @@ export const fetchMessages = async () => {
   const response = await fetch('https://wa-soee.onrender.com/messages');
   if (!response.ok) {
     throw new Error('Failed to fetch messages');
+  }
+  return response.json();
+};
+
+export const fetchTemplates = async () => {
+  const response = await fetch('https://wa-soee.onrender.com/templates');
+  if (!response.ok) {
+    throw new Error('Failed to fetch templates');
   }
   return response.json();
 };
