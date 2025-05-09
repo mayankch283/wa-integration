@@ -41,3 +41,14 @@ export interface WhatsAppMessage {
     wa_id: string;
   };
 }
+
+export interface MessageResponse {
+  id: number;
+  message_id: string;
+  from_number: string;
+  timestamp: string;
+  message_type: string;
+  message_content: string;
+  contact_info: string;
+  created_at: string;
+}
