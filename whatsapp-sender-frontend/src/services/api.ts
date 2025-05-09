@@ -1,4 +1,3 @@
-// api.ts
 export interface WhatsAppTemplateParameter {
   type: string;
   text: string;
@@ -23,6 +22,10 @@ export interface TemplateComponent {
   example?: {
     body_text?: string[][];
     header_text?: string[][];
+    body_text_named_params?: Array<{
+      param_name: string;
+      example: string;
+    }>;
   };
 }
 
