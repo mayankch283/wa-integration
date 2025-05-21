@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import WhatsAppTemplateForm from './WhatsappTemplateForm';
 import MessagesList from './MessagesList';
+import TemplateCreator from './TemplateCreator';
 
 export default function WhatsAppDashboard() {
   const [activeTab, setActiveTab] = useState('send');
@@ -25,15 +26,25 @@ export default function WhatsAppDashboard() {
           >
             Recent Messages
           </button>
+          <button
+            className={`px-4 py-2 font-medium ${activeTab === 'create' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
+            onClick={() => setActiveTab('create')}
+          >
+            Create Template
+          </button>
         </div>
       </div>
       
       <div className="mt-6">
-        {activeTab === 'send' ? (
-          <WhatsAppTemplateForm />
-        ) : (
-          <MessagesList />
-        )}
+        {
+          activeTab === 'send' ? (
+            <WhatsAppTemplateForm />
+          ) : activeTab === 'messages' ? (
+            <MessagesList />
+          ) : (
+            <TemplateCreator />
+          )
+        }
       </div>
     </div>
   );

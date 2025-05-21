@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ApiResponse } from '../types';
-import { sendWhatsAppTemplate, fetchTemplates, Template, TemplateComponent, WhatsAppTemplateComponent, WhatsAppTemplateParameter } from '../services/api';
+import { sendWhatsAppTemplate, fetchTemplates, Template, WhatsAppTemplateComponent, WhatsAppTemplateParameter } from '../services/api';
 
 // Define a type for grouped templates
 interface GroupedTemplate {

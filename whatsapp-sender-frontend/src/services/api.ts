@@ -1,3 +1,5 @@
+const API_URL = process.env.REACT_APP_API_URL;
+
 export interface WhatsAppTemplateParameter {
   type: string;
   text: string;
@@ -40,7 +42,7 @@ export interface Template {
 }
 
 export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
-  const response = await fetch('https://wa-soee.onrender.com/send-whatsapp-template', {
+  const response = await fetch(`${API_URL}/send-whatsapp-template`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -56,7 +58,7 @@ export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
 };
 
 export const fetchMessages = async () => {
-  const response = await fetch('https://wa-soee.onrender.com/messages');
+  const response = await fetch(`${API_URL}/messages`);
   if (!response.ok) {
     throw new Error('Failed to fetch messages');
   }
@@ -64,9 +66,26 @@ export const fetchMessages = async () => {
 };
 
 export const fetchTemplates = async () => {
-  const response = await fetch('https://wa-soee.onrender.com/templates');
+  console.log('Fetching templates from API:', `${API_URL}/templates`);
+  const response = await fetch(`${API_URL}/templates`);
   if (!response.ok) {
     throw new Error('Failed to fetch templates');
   }
+  return response.json();
+};
+
+export const createTemplate = async (template: Template) => {
+  const response = await fetch(`${API_URL}/templates`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(template),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create template');
+  }
+
   return response.json();
 };
