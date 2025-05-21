@@ -3,7 +3,7 @@ import { useState } from "react";
 
 interface ComponentField {
   type: "HEADER" | "BODY" | "FOOTER" | "BUTTONS";
-  text: string;
+  text?: string;
   format?: "TEXT";
   example?: {
     header_text?: string[][];
@@ -14,7 +14,7 @@ interface ComponentField {
 
 interface Button {
   type: "QUICK_REPLY" | "URL" | "PHONE_NUMBER" | "COPY_CODE";
-  text: string;
+  text: string; // Required for all button types
   url?: string;
   phone_number?: string;
   url_type?: "STATIC" | "DYNAMIC";
@@ -69,11 +69,18 @@ const TemplateCreator: React.FC = () => {
   ];
 
   const addComponent = (type: ComponentField["type"]) => {
-    const newComponent: ComponentField = { type, text: "", format: "TEXT" };
+    const newComponent: ComponentField = { type };
     
-    // Initialize buttons array for BUTTONS component
+    if (type === "HEADER") {
+      newComponent.format = "TEXT";
+    }
+    
     if (type === "BUTTONS") {
+      // Initialize buttons array without text field for BUTTONS component
       newComponent.buttons = [{ type: "QUICK_REPLY", text: "" }];
+    } else {
+      // Add text field only for non-BUTTONS components
+      newComponent.text = "";
     }
     
     setComponents([...components, newComponent]);
@@ -100,7 +107,12 @@ const TemplateCreator: React.FC = () => {
       component.buttons = [];
     }
     
-    component.buttons.push({ type: "QUICK_REPLY", text: "" });
+    // Initialize button with required text field
+    component.buttons.push({ 
+      type: "QUICK_REPLY", 
+      text: "" // Always include text field for buttons
+    });
+    
     setComponents(updatedComponents);
   };
 
@@ -158,15 +170,19 @@ const TemplateCreator: React.FC = () => {
     const preparedComponents = components.map(component => {
       const preparedComponent: any = {
         type: component.type,
-        text: component.text
       };
 
+      // Only add text field if not BUTTONS type
       if (component.type !== "BUTTONS") {
-        preparedComponent.format = "TEXT";
+        preparedComponent.text = component.text;
+        // Only add format for HEADER type
+        if (component.type === "HEADER") {
+          preparedComponent.format = "TEXT";
+        }
       }
 
       // Add examples for variables
-      if (component.text.includes("{{")) {
+      if (component.text?.includes("{{")) {
         const example: any = {};
         
         if (component.type === "HEADER") {
@@ -180,14 +196,26 @@ const TemplateCreator: React.FC = () => {
         preparedComponent.example = example;
       }
 
+      // Add buttons array with text field for BUTTONS type
       if (component.type === "BUTTONS" && component.buttons) {
-        preparedComponent.buttons = component.buttons;
+        preparedComponent.buttons = component.buttons.map(button => ({
+          type: button.type,
+          text: button.text, // Keep text field for buttons
+          ...(button.type === "URL" && {
+            url: button.url,
+            url_type: button.url_type
+          }),
+          ...(button.type === "PHONE_NUMBER" && {
+            phone_number: button.phone_number
+          })
+        }));
       }
 
       return preparedComponent;
     });
 
     return {
+      allow_category_change: true,
       name: templateName.toLowerCase(),
       language,
       category,
@@ -339,7 +367,7 @@ const TemplateCreator: React.FC = () => {
                       rows={3}
                     />
                     <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                      {countCharacters(component.text)}/{component.type === "HEADER" ? "60" : component.type === "FOOTER" ? "60" : "1024"}
+                      {countCharacters(component.text || "")}/{component.type === "HEADER" ? "60" : component.type === "FOOTER" ? "60" : "1024"}
                     </div>
                   </div>
                   <div className="flex space-x-2">

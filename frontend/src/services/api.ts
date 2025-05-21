@@ -42,6 +42,7 @@ export interface Template {
 }
 
 export interface TemplateCreateRequest {
+  allow_category_change: boolean;
   name: string;
   language: string;
   category: string;
