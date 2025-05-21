@@ -41,6 +41,25 @@ export interface Template {
   parameter_format?: string;
 }
 
+export interface TemplateCreateRequest {
+  name: string;
+  language: string;
+  category: string;
+  components: {
+    type: string;
+    format?: string;
+    text?: string;
+    example?: {
+      header_text?: string[];
+      body_text?: string[][];
+    };
+    buttons?: {
+      type: string;
+      text: string;
+    }[];
+  }[];
+}
+
 export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
   const response = await fetch(`${API_URL}/send-whatsapp-template`, {
     method: 'POST',
@@ -74,7 +93,7 @@ export const fetchTemplates = async () => {
   return response.json();
 };
 
-export const createTemplate = async (template: Template) => {
+export const createTemplate = async (template: TemplateCreateRequest) => {
   const response = await fetch(`${API_URL}/templates`, {
     method: 'POST',
     headers: {
