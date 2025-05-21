@@ -55,4 +55,8 @@ class TemplateCreateRequest(BaseModel):
     language: str
     category: str
     components: List[TemplateComponent]
+    
+class SmsRequest(BaseModel):
+    phoneNumber: str
+    message: str
 

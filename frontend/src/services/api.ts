@@ -61,17 +61,22 @@ export interface TemplateCreateRequest {
   }[];
 }
 
+export interface SmsFormData {
+  phoneNumber: string;
+  message: string;
+}
+
 export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
   const response = await fetch(`${API_URL}/send-whatsapp-template`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(params),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to send WhatsApp template');
+    throw new Error("Failed to send WhatsApp template");
   }
 
   return response.json();
@@ -80,32 +85,46 @@ export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
 export const fetchMessages = async () => {
   const response = await fetch(`${API_URL}/messages`);
   if (!response.ok) {
-    throw new Error('Failed to fetch messages');
+    throw new Error("Failed to fetch messages");
   }
   return response.json();
 };
 
 export const fetchTemplates = async () => {
-  console.log('Fetching templates from API:', `${API_URL}/templates`);
+  console.log("Fetching templates from API:", `${API_URL}/templates`);
   const response = await fetch(`${API_URL}/templates`);
   if (!response.ok) {
-    throw new Error('Failed to fetch templates');
+    throw new Error("Failed to fetch templates");
   }
   return response.json();
 };
 
 export const createTemplate = async (template: TemplateCreateRequest) => {
   const response = await fetch(`${API_URL}/templates`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(template),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create template');
+    throw new Error("Failed to create template");
   }
 
   return response.json();
+};
+
+export const sendSms = async (formData: SmsFormData) => {
+  const response = await fetch(`${API_URL}/send-sms`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to send SMS");
+  }
 };
