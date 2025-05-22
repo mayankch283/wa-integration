@@ -1,4 +1,10 @@
 const API_URL = process.env.REACT_APP_API_URL;
+const API_KEY = process.env.REACT_APP_API_KEY as string;
+
+const headers = {
+  "Content-Type": "application/json",
+  "X-API-Key": API_KEY,
+};
 
 export interface WhatsAppTemplateParameter {
   type: string;
@@ -69,9 +75,7 @@ export interface SmsFormData {
 export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
   const response = await fetch(`${API_URL}/send-whatsapp-template`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(params),
   });
 
@@ -83,7 +87,9 @@ export const sendWhatsAppTemplate = async (params: WhatsAppTemplateRequest) => {
 };
 
 export const fetchMessages = async () => {
-  const response = await fetch(`${API_URL}/messages`);
+  const response = await fetch(`${API_URL}/messages`, {
+    headers,
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch messages");
   }
@@ -92,7 +98,9 @@ export const fetchMessages = async () => {
 
 export const fetchTemplates = async () => {
   console.log("Fetching templates from API:", `${API_URL}/templates`);
-  const response = await fetch(`${API_URL}/templates`);
+  const response = await fetch(`${API_URL}/templates`, {
+    headers,
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch templates");
   }
@@ -102,9 +110,7 @@ export const fetchTemplates = async () => {
 export const createTemplate = async (template: TemplateCreateRequest) => {
   const response = await fetch(`${API_URL}/templates`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(template),
   });
 
@@ -118,9 +124,7 @@ export const createTemplate = async (template: TemplateCreateRequest) => {
 export const sendSms = async (formData: SmsFormData) => {
   const response = await fetch(`${API_URL}/send-sms`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(formData),
   });
 

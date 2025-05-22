@@ -1,10 +1,11 @@
 import json
 import os
 import httpx
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Depends, Request, Security
 from fastapi.middleware.cors import CORSMiddleware
 from util.config import Settings
 from util.message_store import MessageStore as messagestore
+from util.auth import verify_api_key
 from models.models import TemplateCreateRequest, WhatsAppTemplateRequest, SmsRequest
 
 
@@ -83,7 +84,9 @@ async def get_messages():
 
 @app.post("/send-whatsapp-template")
 async def send_whatsapp_message(
-    payload: WhatsAppTemplateRequest, settings: Settings = Depends(get_settings)
+    payload: WhatsAppTemplateRequest, 
+    settings: Settings = Depends(get_settings),
+    api_key: str = Security(verify_api_key)
 ):
     api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_phone_number_id}/messages"
 
@@ -134,7 +137,10 @@ async def send_whatsapp_message(
 
 
 @app.get("/templates")
-async def get_templates(settings: Settings = Depends(get_settings)):
+async def get_templates(
+    settings: Settings = Depends(get_settings),
+    api_key: str = Security(verify_api_key)
+):
     api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_app_id}/message_templates"
 
     headers = {
@@ -186,7 +192,9 @@ async def get_templates(settings: Settings = Depends(get_settings)):
 
 @app.post("/templates")
 async def create_template(
-    template: TemplateCreateRequest, settings: Settings = Depends(get_settings)
+    template: TemplateCreateRequest, 
+    settings: Settings = Depends(get_settings),
+    api_key: str = Security(verify_api_key)
 ):
     api_url = f"https://graph.facebook.com/{settings.facebook_api_version}/{settings.facebook_app_id}/message_templates"
 
@@ -224,7 +232,11 @@ async def create_template(
 
 
 @app.post("/send-sms")
-async def send_sms(sms_request: SmsRequest, settings: Settings = Depends(get_settings)):
+async def send_sms(
+    sms_request: SmsRequest, 
+    settings: Settings = Depends(get_settings),
+    api_key: str = Security(verify_api_key)
+):
 
     import boto3
 
