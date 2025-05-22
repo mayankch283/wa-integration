@@ -240,5 +240,7 @@ async def send_sms(sms_request: SmsRequest, settings: Settings = Depends(get_set
             PhoneNumber=sms_request.phoneNumber, Message=sms_request.message
         )
         print(f"Message sent with ID: {response['MessageId']}")
+        return response.json()
     except Exception as e:
         print(f"Error sending message: {e}")
+        return {"error": str(e)}
