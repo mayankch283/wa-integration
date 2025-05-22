@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     supabase_key: str = os.getenv("SUPABASE_KEY")
     aws_access_key_id: str = os.getenv("AWS_ACCESS_KEY_ID")
     aws_secret_access_key: str = os.getenv("AWS_SECRET_ACCESS_KEY")
-    region_name: str = os.getenv("AWS_REGION")
+    aws_region: str = os.getenv("AWS_REGION")
 
     class Config:
         env_file = ".env"
