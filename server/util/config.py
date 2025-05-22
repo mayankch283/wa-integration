@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     aws_secret_access_key: str = os.getenv("AWS_SECRET_ACCESS_KEY")
     aws_region: str = os.getenv("AWS_REGION")
     api_key: str = os.getenv("API_KEY")
+    api_url: str = os.getenv("API_URL")
 
 
     class Config:
